@@ -96,6 +96,7 @@ pub fn assemble_ir(
             &tokens[match opcode {
                 OPCODE_LOAD => 3,
                 OPCODE_BRANCH => 1,
+                OPCODE_STORE => 3,
                 _ => 2,
             }],
         );
@@ -132,6 +133,7 @@ pub fn assemble_ir(
             let imm = parse_imm(
                 &tokens[match opcode {
                     OPCODE_LOAD => 2,
+                    OPCODE_STORE => 2,
                     _ => 3,
                 }],
                 labels,

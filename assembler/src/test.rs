@@ -253,6 +253,14 @@ fn test_assemble_with_label() {
 }
 
 #[test]
+fn test_single_instr() {
+    let mut labels: HashMap<String, u32> = HashMap::new();
+    let _ = assemble_ir("sb x1, 0(x5)", &mut labels, 0)
+        .unwrap()
+        .unwrap();
+}
+
+#[test]
 fn test_encode_b_imm() {
     test_field!(encode_b_imm!(72), instructions::BLT_X5_X5_72);
     test_field!(encode_b_imm!(76), instructions::BNE_X5_X5_76);

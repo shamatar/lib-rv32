@@ -16,7 +16,7 @@ macro_rules! tokenize {
             .to_ascii_lowercase()
             .split_whitespace()
             .map(|s| s.to_owned())
-            .collect();
+            .collect()
     };
 }
 
@@ -24,7 +24,7 @@ macro_rules! tokenize {
 pub fn match_opcode(op: &str) -> Result<u8, AssemblerError> {
     let opcode = match op {
         "add" | "sub" | "sll" | "slt" | "sltu" | "xor" | "sra" | "or" | "and" => OPCODE_ARITHMETIC,
-        "addi" | "slli" | "slti" | "xori" | "srai" | "ori" | "andi" => OPCODE_ARITHMETIC_IMM,
+        "addi" | "slli" | "sltiu" | "slti" | "xori" | "srai" | "ori" | "andi" => OPCODE_ARITHMETIC_IMM,
         "lui" => OPCODE_LUI,
         "auipc" => OPCODE_AUIPC,
         "jal" => OPCODE_JAL,
@@ -90,7 +90,7 @@ macro_rules! match_func3 {
             "add" | "addi" | "sub" => FUNC3_ADD_SUB,
             "sll" | "slli" => FUNC3_SLL,
             "slt" | "slti" => FUNC3_SLT,
-            "sltu" => FUNC3_SLTU,
+            "sltu" | "sltiu" => FUNC3_SLTU,
             "xor" | "xori" => FUNC3_XOR,
             "sra" | "srai" | "srl" | "srli" => FUNC3_SR,
             "or" | "ori" => FUNC3_OR,
