@@ -23,8 +23,8 @@ macro_rules! tokenize {
 /// Match an operation to the correct opcode.
 pub fn match_opcode(op: &str) -> Result<u8, AssemblerError> {
     let opcode = match op {
-        "add" | "sub" | "sll" | "slt" | "sltu" | "xor" | "sra" | "or" | "and" => OPCODE_ARITHMETIC,
-        "addi" | "slli" | "sltiu" | "slti" | "xori" | "srai" | "ori" | "andi" => OPCODE_ARITHMETIC_IMM,
+        "add" | "sub" | "sll" | "srl" | "slt" | "sltu" | "xor" | "sra" | "or" | "and" => OPCODE_ARITHMETIC,
+        "addi" | "slli" | "srli" | "sltiu" | "slti" | "xori" | "srai" | "ori" | "andi" => OPCODE_ARITHMETIC_IMM,
         "lui" => OPCODE_LUI,
         "auipc" => OPCODE_AUIPC,
         "jal" => OPCODE_JAL,
