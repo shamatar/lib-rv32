@@ -7,6 +7,8 @@ pub const OPCODE_LOAD: u8 = 0b0000011;
 pub const OPCODE_STORE: u8 = 0b0100011;
 pub const OPCODE_ARITHMETIC_IMM: u8 = 0b0010011;
 pub const OPCODE_ARITHMETIC: u8 = 0b0110011;
+pub const OPCODE_CSR: u8 = 0b1110011;
+pub const OPCODE_FENCE: u8 = 0b0001111;
 
 pub const FUNC3_BEQ: u8 = 0b000;
 pub const FUNC3_BNE: u8 = 0b001;
@@ -30,6 +32,21 @@ pub const FUNC3_XOR: u8 = 0b100;
 pub const FUNC3_SR: u8 = 0b101;
 pub const FUNC3_OR: u8 = 0b110;
 pub const FUNC3_AND: u8 = 0b111;
+pub const FUNC3_MUL: u8 = 0b000;
+pub const FUNC3_MULH: u8 = 0b001;
+pub const FUNC3_MULHSU: u8 = 0b010;
+pub const FUNC3_MULHU: u8 = 0b011;
+pub const FUNC3_DIV: u8 = 0b100;
+pub const FUNC3_DIVU: u8 = 0b101;
+pub const FUNC3_REM: u8 = 0b110;
+pub const FUNC3_REMU: u8 = 0b111;
+pub const FUNC3_CSRRW: u8 = 0b001;
+pub const FUNC3_CSRRS: u8 = 0b010;
+pub const FUNC3_CSRRC: u8 = 0b011;
+pub const FUNC3_CSRRWI: u8 = 0b101;
+pub const FUNC3_CSRRSI: u8 = 0b110;
+pub const FUNC3_CSRRCI: u8 = 0b111;
+pub const FUNC3_FENCEI: u8 = 0b001;
 
 pub const FUNC7_ADD: u8 = 0b0000000;
 pub const FUNC7_SUB: u8 = 0b0100000;
@@ -41,6 +58,8 @@ pub const FUNC7_SRA: u8 = 0b0100000;
 pub const FUNC7_AND: u8 = 0b0000000;
 pub const FUNC7_OR: u8 = 0b0000000;
 pub const FUNC7_XOR: u8 = 0b0000000;
+pub const FUNC7_MUL: u8 = 0b0000001;
+pub const FUNC7_DIV: u8 = 0b0000001;
 
 /// Array to match register numbers to their common names.
 pub static REG_NAMES: &[&str] = &[

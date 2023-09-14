@@ -8,8 +8,8 @@ use lib_rv32_common::constants::*;
 
 use crate::{
     encode_b_imm, encode_func3, encode_func7, encode_i_imm, encode_j_imm, encode_opcode, encode_rd,
-    encode_rs1, encode_rs2, encode_s_imm, encode_u_imm, error::AssemblerError, match_func3,
-    match_func7, parse::*, tokenize,
+    encode_rs1, encode_rs2, encode_s_imm, encode_u_imm, error::AssemblerError,
+    parse::*, tokenize,
 };
 
 enum InstructionFormat {
@@ -74,6 +74,8 @@ pub fn assemble_ir(
         OPCODE_LUI | OPCODE_AUIPC => InstructionFormat::Utype,
         OPCODE_BRANCH => InstructionFormat::Btype,
         OPCODE_STORE => InstructionFormat::Stype,
+        // OPCODE_CSR => InstructionFormat::Itype,
+        // OPCODE_FENCE => FENCE.I
         _ => unreachable!(),
     };
 
@@ -105,7 +107,7 @@ pub fn assemble_ir(
         }
         ir |= encode_rs1!(rs1.unwrap());
 
-        ir |= encode_func3!(match_func3!(op));
+        ir |= encode_func3!(match_func3(op));
     }
 
     // Use the second register operand field.
@@ -125,7 +127,7 @@ pub fn assemble_ir(
 
     // Use the func7 field.
     if let InstructionFormat::Rtype = format {
-        ir |= encode_func7!(match_func7!(op));
+        ir |= encode_func7!(match_func7(op));
     }
 
     match format {
