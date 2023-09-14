@@ -33,9 +33,14 @@ pub const FUNC3_AND: u8 = 0b111;
 
 pub const FUNC7_ADD: u8 = 0b0000000;
 pub const FUNC7_SUB: u8 = 0b0100000;
+pub const FUNC7_SLT: u8 = 0b0000000;
+pub const FUNC7_SLTU: u8 = 0b0000000;
 pub const FUNC7_SLL: u8 = 0b0000000;
 pub const FUNC7_SRL: u8 = 0b0000000;
 pub const FUNC7_SRA: u8 = 0b0100000;
+pub const FUNC7_AND: u8 = 0b0000000;
+pub const FUNC7_OR: u8 = 0b0000000;
+pub const FUNC7_XOR: u8 = 0b0000000;
 
 /// Array to match register numbers to their common names.
 pub static REG_NAMES: &[&str] = &[

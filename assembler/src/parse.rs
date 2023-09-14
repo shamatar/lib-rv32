@@ -110,6 +110,11 @@ macro_rules! match_func7 {
             "sra" | "srai" => FUNC7_SRA,
             "srl" | "srli" => FUNC7_SRL,
             "sll" | "slli" => FUNC7_SLL,
+            "slt" | "slti" => FUNC7_SLT,
+            "sltu" | "sltui" => FUNC7_SLTU,
+            "and" => FUNC7_AND,
+            "or" => FUNC7_OR,
+            "xor" => FUNC7_XOR,
             _ => unreachable!(),
         }
     };
