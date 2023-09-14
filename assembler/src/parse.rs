@@ -109,6 +109,7 @@ macro_rules! match_func7 {
             "sub" => FUNC7_SUB,
             "sra" | "srai" => FUNC7_SRA,
             "srl" | "srli" => FUNC7_SRL,
+            "sll" | "slli" => FUNC7_SLL,
             _ => unreachable!(),
         }
     };
