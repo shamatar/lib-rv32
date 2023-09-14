@@ -24,7 +24,7 @@ macro_rules! tokenize {
 pub fn match_opcode(op: &str) -> Result<u8, AssemblerError> {
     let opcode = match op {
         "add" | "sub" | "sll" | "srl" | "slt" | "sltu" | "xor" | "sra" | "or" | "and" => OPCODE_ARITHMETIC,
-        "addi" | "slli" | "srli" | "sltiu" | "slti" | "xori" | "srai" | "ori" | "andi" => OPCODE_ARITHMETIC_IMM,
+        "addi" | "slli" | "srli" | "slti" | "sltiu" | "xori" | "srai" | "ori" | "andi" => OPCODE_ARITHMETIC_IMM,
         "lui" => OPCODE_LUI,
         "auipc" => OPCODE_AUIPC,
         "jal" => OPCODE_JAL,
