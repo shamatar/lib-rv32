@@ -255,7 +255,7 @@ fn test_assemble_with_label() {
 #[test]
 fn test_single_instr() {
     let mut labels: HashMap<String, u32> = HashMap::new();
-    let _ = assemble_ir("sltu x1, x1, x2", &mut labels, 0)
+    let _ = assemble_ir("addi x1, x1, 4", &mut labels, 0)
         .unwrap()
         .unwrap();
 }

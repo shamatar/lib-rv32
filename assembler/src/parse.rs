@@ -105,13 +105,13 @@ macro_rules! match_func3 {
 macro_rules! match_func7 {
     ($t:expr) => {
         match $t {
-            "add" | "addi" => FUNC7_ADD,
+            "add" => FUNC7_ADD,
             "sub" => FUNC7_SUB,
-            "sra" | "srai" => FUNC7_SRA,
-            "srl" | "srli" => FUNC7_SRL,
-            "sll" | "slli" => FUNC7_SLL,
-            "slt" | "slti" => FUNC7_SLT,
-            "sltu" | "sltui" => FUNC7_SLTU,
+            "sra" => FUNC7_SRA,
+            "srl" => FUNC7_SRL,
+            "sll" => FUNC7_SLL,
+            "slt" => FUNC7_SLT,
+            "sltu" => FUNC7_SLTU,
             "and" => FUNC7_AND,
             "or" => FUNC7_OR,
             "xor" => FUNC7_XOR,
