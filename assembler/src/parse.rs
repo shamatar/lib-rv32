@@ -112,6 +112,21 @@ pub fn parse_imm(s: &str, labels: &HashMap<String, u32>, pc: u32) -> Result<u32,
     }
 }
 
+pub fn parse_uimm(s: &str, labels: &HashMap<String, u32>, pc: u32) -> Result<u32, AssemblerError> {
+    let num = parse_int!(u64, s);
+    match num {
+        Err(_) => {
+            let label = labels.get(s);
+            if let Some(v) = label {
+                Ok((*v).wrapping_sub(pc))
+            } else {
+                Err(AssemblerError::InvalidImmediateError)
+            }
+        }
+        Ok(d) => Ok(d as u32),
+    }
+}
+
 /// Match an operation to the correct func3.
 pub fn match_func3(t: &str) -> u8 {
     match t {

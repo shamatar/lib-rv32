@@ -101,7 +101,7 @@ pub fn assemble_ir(
             let rs1 = match_register(&tokens[3])?;
             ir |= encode_rs1!(rs1);
         } else if format == InstructionFormat::SystemQuasiIType {
-            let uimm = parse_imm(&tokens[3], labels, pc)?;
+            let uimm = parse_uimm(&tokens[3], labels, pc)?;
             ir = encode_csr_uimm(ir, uimm)?;
         }
 
