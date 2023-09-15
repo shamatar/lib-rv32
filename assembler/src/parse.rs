@@ -72,10 +72,16 @@ pub fn match_opcode_and_format(op: &str) -> Result<(u8, InstructionFormat), Asse
             ));
         }
         "fence" => {
-            return Ok((OPCODE_FENCE, InstructionFormat::SpecialCase(encode_fence)));
+            return Ok((
+                OPCODE_MISC_MEM,
+                InstructionFormat::SpecialCase(encode_fence),
+            ));
         }
         "fence.i" => {
-            return Ok((OPCODE_FENCE, InstructionFormat::SpecialCase(encode_fencei)));
+            return Ok((
+                OPCODE_MISC_MEM,
+                InstructionFormat::SpecialCase(encode_fencei),
+            ));
         }
         "mret" => {
             return Ok((

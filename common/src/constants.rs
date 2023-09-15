@@ -8,7 +8,6 @@ pub const OPCODE_STORE: u8 = 0b0100011;
 pub const OPCODE_ARITHMETIC_IMM: u8 = 0b0010011;
 pub const OPCODE_ARITHMETIC: u8 = 0b0110011;
 pub const OPCODE_SYSTEM: u8 = 0b1110011;
-pub const OPCODE_FENCE: u8 = 0b0001111;
 pub const OPCODE_MISC_MEM: u8 = 0b0001111;
 
 pub const FUNC3_BEQ: u8 = 0b000;
