@@ -18,9 +18,6 @@ pub enum InstructionFormat {
     Utype,
     Stype,
     Btype,
-    SpecialCase(
-        fn(u8, &[String], &mut HashMap<String, u32>, u32, String) -> Result<u32, AssemblerError>,
-    ),
     SpecialCaseParamtric(
         Box<
             dyn FnOnce(
@@ -75,11 +72,6 @@ pub fn assemble_ir(
     ir |= encode_opcode!(opcode);
 
     // special cases we do immediatelly
-    if let InstructionFormat::SpecialCase(parsing_fn) = format {
-        let ir = (parsing_fn)(opcode, &tokens, labels, pc, msg)?;
-        return Ok(Some(ir));
-    }
-
     if let InstructionFormat::SpecialCaseParamtric(parsing_fn) = format {
         let ir = (parsing_fn)(&tokens, labels, pc, msg)?;
         return Ok(Some(ir));
@@ -120,11 +112,8 @@ pub fn assemble_ir(
                 OPCODE_SYSTEM => 2,
                 _ => 3,
             }],
-        );
-        if let Err(why) = rs2 {
-            return Err(why);
-        }
-        ir |= encode_rs2!(rs2.unwrap());
+        )?;
+        ir |= encode_rs2!(rs2);
     }
 
     // Use the func7 field.
@@ -142,47 +131,27 @@ pub fn assemble_ir(
                 }],
                 labels,
                 pc,
-            );
-            if let Err(why) = imm {
-                return Err(why);
-            }
-            let imm = imm.unwrap();
+            )?;
             ir |= encode_i_imm!(imm);
         }
         InstructionFormat::Utype => {
-            let imm = parse_imm(&tokens[2], labels, pc);
-            if let Err(why) = imm {
-                return Err(why);
-            }
-            let imm = imm.unwrap();
+            let imm = parse_imm(&tokens[2], labels, pc)?;
             ir |= encode_u_imm!(imm);
         }
         InstructionFormat::Jtype => {
-            let imm = parse_imm(&tokens[2], labels, pc);
-            if let Err(why) = imm {
-                return Err(why);
-            }
-            let imm = imm.unwrap();
+            let imm = parse_imm(&tokens[2], labels, pc)?;
             ir |= encode_j_imm!(imm);
         }
         InstructionFormat::Btype => {
-            let imm = parse_imm(&tokens[3], labels, pc);
-            if let Err(why) = imm {
-                return Err(why);
-            }
-            let imm = imm.unwrap();
+            let imm = parse_imm(&tokens[3], labels, pc)?;
             ir |= encode_b_imm!(imm);
         }
         InstructionFormat::Stype => {
-            let imm = parse_imm(&tokens[2], labels, pc);
-            if let Err(why) = imm {
-                return Err(why);
-            }
-            let imm = imm.unwrap();
+            let imm = parse_imm(&tokens[2], labels, pc)?;
             ir |= encode_s_imm!(imm);
         }
         InstructionFormat::Rtype => (),
-        InstructionFormat::SpecialCase(..) | InstructionFormat::SpecialCaseParamtric(..) => {
+        InstructionFormat::SpecialCaseParamtric(..) => {
             unreachable!()
         }
     }

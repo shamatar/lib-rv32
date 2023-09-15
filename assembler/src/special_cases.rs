@@ -6,7 +6,6 @@ use log::info;
 use std::collections::HashMap;
 
 pub fn encode_fence(
-    opcode: u8,
     _tokens: &[String],
     _labels: &mut HashMap<String, u32>,
     _pc: u32,
@@ -14,7 +13,7 @@ pub fn encode_fence(
 ) -> Result<u32, AssemblerError> {
     let mut ir = 0u32;
 
-    ir |= encode_opcode!(opcode);
+    ir |= encode_opcode!(OPCODE_MISC_MEM);
 
     ir |= encode_func3!(FUNC3_FENCE);
 
@@ -25,7 +24,6 @@ pub fn encode_fence(
 }
 
 pub fn encode_fencei(
-    opcode: u8,
     _tokens: &[String],
     _labels: &mut HashMap<String, u32>,
     _pc: u32,
@@ -33,7 +31,7 @@ pub fn encode_fencei(
 ) -> Result<u32, AssemblerError> {
     let mut ir = 0u32;
 
-    ir |= encode_opcode!(opcode);
+    ir |= encode_opcode!(OPCODE_MISC_MEM);
 
     ir |= encode_func3!(FUNC3_FENCEI);
 
@@ -83,6 +81,7 @@ pub fn parse_csr_with_reg(
     _labels: &mut HashMap<String, u32>,
     _pc: u32,
     mut msg: String,
+    func3: u8,
 ) -> Result<u32, AssemblerError> {
     let mut ir = 0u32;
 
@@ -90,6 +89,8 @@ pub fn parse_csr_with_reg(
 
     let rd = match_register(&tokens[1])?;
     ir |= encode_rd!(rd);
+
+    ir |= encode_func3!(func3);
 
     let csr_index = parse_csr(&tokens[2]);
     ir = encode_csr_index(ir, csr_index)?;
@@ -109,6 +110,7 @@ pub fn parse_csr_with_imm(
     labels: &mut HashMap<String, u32>,
     pc: u32,
     mut msg: String,
+    func3: u8,
 ) -> Result<u32, AssemblerError> {
     let mut ir = 0u32;
 
@@ -116,6 +118,8 @@ pub fn parse_csr_with_imm(
 
     let rd = match_register(&tokens[1])?;
     ir |= encode_rd!(rd);
+
+    ir |= encode_func3!(func3);
 
     let csr_index = parse_csr(&tokens[2]);
     ir = encode_csr_index(ir, csr_index)?;
@@ -127,4 +131,28 @@ pub fn parse_csr_with_imm(
     info!("{}", msg);
 
     Ok(ir)
+}
+
+pub fn create_csr_parse_with_reg(
+    opcode: u8,
+    func3: u8,
+) -> Box<dyn FnOnce(&[String], &mut HashMap<String, u32>, u32, String) -> Result<u32, AssemblerError>>
+{
+    Box::new(
+        move |tokens: &[String], labels: &mut HashMap<String, u32>, pc: u32, msg: String| {
+            parse_csr_with_reg(opcode, tokens, labels, pc, msg, func3)
+        },
+    )
+}
+
+pub fn create_csr_parse_with_imm(
+    opcode: u8,
+    func3: u8,
+) -> Box<dyn FnOnce(&[String], &mut HashMap<String, u32>, u32, String) -> Result<u32, AssemblerError>>
+{
+    Box::new(
+        move |tokens: &[String], labels: &mut HashMap<String, u32>, pc: u32, msg: String| {
+            parse_csr_with_imm(opcode, tokens, labels, pc, msg, func3)
+        },
+    )
 }

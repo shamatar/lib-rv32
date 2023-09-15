@@ -3,8 +3,10 @@ use std::collections::HashMap;
 use lib_rv32_common::{constants::*, csr::*, parse_int};
 
 use crate::error::AssemblerError;
-use crate::special_cases::create_encode_priv_fn;
-use crate::special_cases::{encode_fence, encode_fencei, parse_csr_with_imm, parse_csr_with_reg};
+use crate::special_cases::{
+    create_csr_parse_with_imm, create_csr_parse_with_reg, create_encode_priv_fn,
+};
+use crate::special_cases::{encode_fence, encode_fencei};
 use crate::InstructionFormat;
 
 /// Convert an instruction to it's tokens, stripping out whitespace,
@@ -59,28 +61,84 @@ pub fn match_opcode_and_format(op: &str) -> Result<(u8, InstructionFormat), Asse
         "lb" | "lbu" | "lh" | "lhu" | "lw" => OPCODE_LOAD,
         "sb" | "sh" | "sw" => OPCODE_STORE,
         "mul" | "mulh" | "mulhsu" | "mulhu" | "div" | "divu" | "rem" | "remu" => OPCODE_ARITHMETIC,
-        "csrrw" | "csrrs" | "csrrc" => {
+        "csrrw" => {
             return Ok((
                 OPCODE_SYSTEM,
-                InstructionFormat::SpecialCase(parse_csr_with_reg),
+                InstructionFormat::SpecialCaseParamtric(create_csr_parse_with_reg(
+                    OPCODE_SYSTEM,
+                    FUNC3_CSRRW,
+                )),
             ));
         }
-        "csrrwi" | "csrrsi" | "csrrci" => {
+        "csrrs" => {
             return Ok((
                 OPCODE_SYSTEM,
-                InstructionFormat::SpecialCase(parse_csr_with_imm),
+                InstructionFormat::SpecialCaseParamtric(create_csr_parse_with_reg(
+                    OPCODE_SYSTEM,
+                    FUNC3_CSRRS,
+                )),
+            ));
+        }
+        "csrrc" => {
+            return Ok((
+                OPCODE_SYSTEM,
+                InstructionFormat::SpecialCaseParamtric(create_csr_parse_with_reg(
+                    OPCODE_SYSTEM,
+                    FUNC3_CSRRC,
+                )),
+            ));
+        }
+        "csrrwi" => {
+            return Ok((
+                OPCODE_SYSTEM,
+                InstructionFormat::SpecialCaseParamtric(create_csr_parse_with_imm(
+                    OPCODE_SYSTEM,
+                    FUNC3_CSRRWI,
+                )),
+            ));
+        }
+        "csrrsi" => {
+            return Ok((
+                OPCODE_SYSTEM,
+                InstructionFormat::SpecialCaseParamtric(create_csr_parse_with_imm(
+                    OPCODE_SYSTEM,
+                    FUNC3_CSRRSI,
+                )),
+            ));
+        }
+        "csrrci" => {
+            return Ok((
+                OPCODE_SYSTEM,
+                InstructionFormat::SpecialCaseParamtric(create_csr_parse_with_imm(
+                    OPCODE_SYSTEM,
+                    FUNC3_CSRRCI,
+                )),
             ));
         }
         "fence" => {
             return Ok((
                 OPCODE_MISC_MEM,
-                InstructionFormat::SpecialCase(encode_fence),
+                InstructionFormat::SpecialCaseParamtric(Box::new(
+                    move |tokens: &[String],
+                          labels: &mut HashMap<String, u32>,
+                          pc: u32,
+                          msg: String| {
+                        encode_fence(tokens, labels, pc, msg)
+                    },
+                )),
             ));
         }
         "fence.i" => {
             return Ok((
                 OPCODE_MISC_MEM,
-                InstructionFormat::SpecialCase(encode_fencei),
+                InstructionFormat::SpecialCaseParamtric(Box::new(
+                    move |tokens: &[String],
+                          labels: &mut HashMap<String, u32>,
+                          pc: u32,
+                          msg: String| {
+                        encode_fencei(tokens, labels, pc, msg)
+                    },
+                )),
             ));
         }
         "mret" => {
