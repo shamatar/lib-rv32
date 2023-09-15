@@ -9,6 +9,7 @@ pub const OPCODE_ARITHMETIC_IMM: u8 = 0b0010011;
 pub const OPCODE_ARITHMETIC: u8 = 0b0110011;
 pub const OPCODE_SYSTEM: u8 = 0b1110011;
 pub const OPCODE_FENCE: u8 = 0b0001111;
+pub const OPCODE_MISC_MEM: u8 = 0b0001111;
 
 pub const FUNC3_BEQ: u8 = 0b000;
 pub const FUNC3_BNE: u8 = 0b001;
@@ -46,6 +47,7 @@ pub const FUNC3_CSRRC: u8 = 0b011;
 pub const FUNC3_CSRRWI: u8 = 0b101;
 pub const FUNC3_CSRRSI: u8 = 0b110;
 pub const FUNC3_CSRRCI: u8 = 0b111;
+pub const FUNC3_FENCE: u8 = 0b000;
 pub const FUNC3_FENCEI: u8 = 0b001;
 
 pub const FUNC7_ADD: u8 = 0b0000000;
