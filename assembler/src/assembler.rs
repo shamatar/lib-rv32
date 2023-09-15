@@ -12,13 +12,18 @@ use crate::{
     parse::*, tokenize,
 };
 
-enum InstructionFormat {
+use crate::encode::*;
+
+#[derive(PartialEq, Eq)]
+pub enum InstructionFormat {
     Itype,
     Rtype,
     Jtype,
     Utype,
     Stype,
     Btype,
+    SystemQuasiIType,
+    SystemQuasiRType,
 }
 
 /// Assemble a single instruction.
@@ -59,33 +64,13 @@ pub fn assemble_ir(
     msg += &format!("{:18} -> [{:02x}] ", ir_string, pc);
 
     let op = &tokens[0][..];
-    let opcode = match_opcode(op);
-    if let Err(why) = opcode {
-        return Err(why);
-    }
-    let opcode = opcode.unwrap();
+    let (opcode, format) = match_opcode_and_format(op)?;
     ir |= encode_opcode!(opcode);
 
-    // Use the opcode to identify the instruction format.
-    let format = match opcode {
-        OPCODE_ARITHMETIC_IMM | OPCODE_JALR | OPCODE_LOAD => InstructionFormat::Itype,
-        OPCODE_ARITHMETIC => InstructionFormat::Rtype,
-        OPCODE_JAL => InstructionFormat::Jtype,
-        OPCODE_LUI | OPCODE_AUIPC => InstructionFormat::Utype,
-        OPCODE_BRANCH => InstructionFormat::Btype,
-        OPCODE_STORE => InstructionFormat::Stype,
-        // OPCODE_CSR => InstructionFormat::Itype,
-        // OPCODE_FENCE => FENCE.I
-        _ => unreachable!(),
-    };
-
     // Use the destination register field.
-    if let InstructionFormat::Rtype | InstructionFormat::Itype | InstructionFormat::Utype = format {
-        let rd = match_register(&tokens[1]);
-        if let Err(why) = rd {
-            return Err(why);
-        }
-        ir |= encode_rd!(rd.unwrap());
+    if let InstructionFormat::Rtype | InstructionFormat::Itype | InstructionFormat::Utype | InstructionFormat::SystemQuasiRType | InstructionFormat::SystemQuasiIType = format {
+        let rd = match_register(&tokens[1])?;
+        ir |= encode_rd!(rd);
     }
 
     // Use the first register operand and func3 fields.
@@ -101,13 +86,32 @@ pub fn assemble_ir(
                 OPCODE_STORE => 3,
                 _ => 2,
             }],
-        );
-        if let Err(why) = rs1 {
-            return Err(why);
-        }
-        ir |= encode_rs1!(rs1.unwrap());
-
+        )?;
+        ir |= encode_rs1!(rs1);
         ir |= encode_func3!(match_func3(op));
+    }
+
+    // special case CSR format
+    if let InstructionFormat::SystemQuasiRType | InstructionFormat::SystemQuasiIType = format {
+        if format == InstructionFormat::SystemQuasiRType {
+            let rs1 = match_register(
+                &tokens[3],
+            )?;
+            ir |= encode_rs1!(rs1);
+        } else if format == InstructionFormat::SystemQuasiIType {
+            let uimm = parse_imm(&tokens[3], labels, pc)?;
+            ir = encode_csr_uimm(ir, uimm)?; 
+        }
+
+        // now parse csr by name
+
+        let csr_index = parse_csr(&tokens[2]);
+        ir = encode_csr_index(ir, csr_index)?;
+
+        msg += &format!("{:08x}", ir);
+        info!("{}", msg);
+    
+        return Ok(Some(ir));
     }
 
     // Use the second register operand field.
@@ -116,6 +120,7 @@ pub fn assemble_ir(
             &tokens[match opcode {
                 OPCODE_STORE => 1,
                 OPCODE_BRANCH => 2,
+                OPCODE_SYSTEM => 2,
                 _ => 3,
             }],
         );
@@ -180,6 +185,7 @@ pub fn assemble_ir(
             ir |= encode_s_imm!(imm);
         }
         InstructionFormat::Rtype => (),
+        InstructionFormat::SystemQuasiIType | InstructionFormat::SystemQuasiRType => (),
     }
 
     msg += &format!("{:08x}", ir);

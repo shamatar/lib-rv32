@@ -1,8 +1,9 @@
 use std::collections::HashMap;
 
-use lib_rv32_common::{constants::*, parse_int};
+use lib_rv32_common::{constants::*, csr::*, parse_int};
 
 use crate::error::AssemblerError;
+use crate::InstructionFormat;
 
 /// Convert an instruction to it's tokens, stripping out whitespace,
 /// parenthesis, and commas.
@@ -20,8 +21,27 @@ macro_rules! tokenize {
     };
 }
 
+// /// Match an operation to the correct opcode.
+// pub fn match_opcode(op: &str) -> Result<u8, AssemblerError> {
+//     let opcode = match op {
+//         "add" | "sub" | "sll" | "srl" | "slt" | "sltu" | "xor" | "sra" | "or" | "and" => OPCODE_ARITHMETIC,
+//         "addi" | "slli" | "srli" | "slti" | "sltiu" | "xori" | "srai" | "ori" | "andi" => OPCODE_ARITHMETIC_IMM,
+//         "lui" => OPCODE_LUI,
+//         "auipc" => OPCODE_AUIPC,
+//         "jal" => OPCODE_JAL,
+//         "jalr" => OPCODE_JALR,
+//         "beq" | "bne" | "blt" | "bge" | "bgeu" => OPCODE_BRANCH,
+//         "lb" | "lbu" | "lh" | "lhu" | "lw" => OPCODE_LOAD,
+//         "sb" | "sh" | "sw" => OPCODE_STORE,
+//         "mul" | "mulh" | "mulhsu" | "mulhu" | "div" | "divu" | "rem" | "remu" => OPCODE_ARITHMETIC,
+//         "csrrw" | "csrrs" | "csrrc" | "csrrwi" | "csrrsi" | "csrrci" => OPCODE_SYSTEM,
+//         _ => return Err(AssemblerError::InvalidOperationError),
+//     };
+//     Ok(opcode)
+// }
+
 /// Match an operation to the correct opcode.
-pub fn match_opcode(op: &str) -> Result<u8, AssemblerError> {
+pub fn match_opcode_and_format(op: &str) -> Result<(u8, InstructionFormat), AssemblerError> {
     let opcode = match op {
         "add" | "sub" | "sll" | "srl" | "slt" | "sltu" | "xor" | "sra" | "or" | "and" => OPCODE_ARITHMETIC,
         "addi" | "slli" | "srli" | "slti" | "sltiu" | "xori" | "srai" | "ori" | "andi" => OPCODE_ARITHMETIC_IMM,
@@ -33,10 +53,29 @@ pub fn match_opcode(op: &str) -> Result<u8, AssemblerError> {
         "lb" | "lbu" | "lh" | "lhu" | "lw" => OPCODE_LOAD,
         "sb" | "sh" | "sw" => OPCODE_STORE,
         "mul" | "mulh" | "mulhsu" | "mulhu" | "div" | "divu" | "rem" | "remu" => OPCODE_ARITHMETIC,
-        "csrrw" | "csrrs" | "csrrc" | "csrrwi" | "csrrsi" | "csrrci" => OPCODE_CSR,
+        "csrrw" | "csrrs" | "csrrc" => {
+            return Ok((OPCODE_SYSTEM, InstructionFormat::SystemQuasiRType));
+        },
+        "csrrwi" | "csrrsi" | "csrrci" => {
+            return Ok((OPCODE_SYSTEM, InstructionFormat::SystemQuasiIType));
+        },
         _ => return Err(AssemblerError::InvalidOperationError),
     };
-    Ok(opcode)
+
+    // Use the opcode to identify the instruction format.
+    let format = match opcode {
+        OPCODE_ARITHMETIC_IMM | OPCODE_JALR | OPCODE_LOAD => InstructionFormat::Itype,
+        OPCODE_ARITHMETIC => InstructionFormat::Rtype,
+        OPCODE_JAL => InstructionFormat::Jtype,
+        OPCODE_LUI | OPCODE_AUIPC => InstructionFormat::Utype,
+        OPCODE_BRANCH => InstructionFormat::Btype,
+        OPCODE_STORE => InstructionFormat::Stype,
+        // OPCODE_FENCE => FENCE.I
+        _ => unreachable!("encountered 0b{:b}", opcode),
+    };
+
+
+    Ok((opcode, format))
 }
 
 /// Match a register number or name to its integer number.
@@ -130,6 +169,18 @@ pub fn match_func7(t: &str) -> u8 {
         "xor" => FUNC7_XOR,
         "mul" | "mulh" | "mulhsu" | "mulhu" => FUNC7_MUL,
         "div" | "divu" | "rem" | "remu" => FUNC7_MUL,
+        _ => unreachable!("encountered {}", t),
+    }
+}
+
+pub fn parse_csr(t: &str) -> u32 {
+    match t {
+        "cycle" => CSR_RDCYCLE,
+        "time" => CSR_RDTIME,
+        "instret" => CSR_RDINSTRET,
+        "cycleh" => CSR_RDCYCLEH,
+        "timeh" => CSR_RDTIMEH,
+        "instreth" => CSR_RDINSTRETH,
         _ => unreachable!("encountered {}", t),
     }
 }

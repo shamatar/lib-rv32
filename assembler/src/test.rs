@@ -255,9 +255,10 @@ fn test_assemble_with_label() {
 #[test]
 fn test_single_instr() {
     let mut labels: HashMap<String, u32> = HashMap::new();
-    let _ = assemble_ir("divu x1, x1, x4", &mut labels, 0)
+    let ir = assemble_ir("csrrw a0, cycle, a0", &mut labels, 0)
         .unwrap()
         .unwrap();
+    println!("0b{:032b}", ir);
 }
 
 #[test]

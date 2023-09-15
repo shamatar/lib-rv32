@@ -9,3 +9,6 @@ pub mod util;
 
 /// Pre-assembled instructions for testing.
 pub mod instructions;
+
+/// CSR indexes
+pub mod csr;

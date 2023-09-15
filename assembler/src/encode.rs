@@ -1,3 +1,5 @@
+use crate::error::AssemblerError;
+
 /// Encode an integer as a bitmask for the opcode.
 #[macro_export]
 macro_rules! encode_opcode {
@@ -100,4 +102,20 @@ macro_rules! encode_b_imm {
             | ((($n as u32) & 0b00000000_00000000_00000000_00011110) << (8 - 1))
             | ((($n as u32) & 0b00000000_00000000_00001000_00000000) >> (11 - 7)))
     };
+}
+
+pub fn encode_csr_uimm(ir: u32, uimm: u32) -> Result<u32, AssemblerError> {
+    if uimm >= (1u32 << 5) {
+        Err(AssemblerError::ImmediateTooLargeError)
+    } else {
+        Ok(ir | uimm << 15)
+    }
+}
+
+pub fn encode_csr_index(ir: u32, csr: u32) -> Result<u32, AssemblerError> {
+    if csr >= (1u32 << 12) {
+        Err(AssemblerError::ImmediateTooLargeError)
+    } else {
+        Ok(ir | csr << 20)
+    }
 }
