@@ -205,6 +205,17 @@ pub fn parse_csr(t: &str) -> u32 {
         "cycleh" => CSR_RDCYCLEH,
         "timeh" => CSR_RDTIMEH,
         "instreth" => CSR_RDINSTRETH,
+        "satp" => CSR_SATP,
+        "mstatus" => CSR_MSTATUS,
+        "misa" => CSR_MISA,
+        "mie" => CSR_MIE,
+        "mtvec" => CSR_MTVEC,
+        "mscratch" => CSR_MSCRATCH,
+        "mepc" => CSR_MEPC,
+        "mcause" => CSR_MCAUSE,
+        "mtval" => CSR_MTVAL,
+        "mip" => CSR_MIP,
+        "vendorid" => CSR_VENDORID,
         _ => unreachable!("encountered {}", t),
     }
 }
