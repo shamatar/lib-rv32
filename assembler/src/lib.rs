@@ -13,6 +13,9 @@ pub mod parse;
 /// Parsing function for special cased opcodes
 pub mod special_cases;
 
+/// Tools for external experiments
+pub mod utils;
+
 /// Unit-tests.
 #[cfg(test)]
 mod test;
