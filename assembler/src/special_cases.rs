@@ -1,7 +1,7 @@
 use crate::{encode_opcode, encode_rd, encode_rs1, error::AssemblerError, parse::*};
 
 use crate::{encode::*, encode_func3};
-use lib_rv32_common::constants::{FUNC3_FENCE, FUNC3_FENCEI};
+use lib_rv32_common::constants::*;
 use log::info;
 use std::collections::HashMap;
 
@@ -41,6 +41,40 @@ pub fn encode_fencei(
     info!("{}", msg);
 
     Ok(ir)
+}
+
+fn encode_priv(
+    opcode: u8,
+    _tokens: &[String],
+    _labels: &mut HashMap<String, u32>,
+    _pc: u32,
+    mut msg: String,
+    func12: u16,
+) -> Result<u32, AssemblerError> {
+    let mut ir = 0u32;
+
+    ir |= encode_opcode!(opcode);
+
+    ir |= encode_func3!(FUNC3_PRIV);
+
+    ir = encode_func12(ir, func12)?;
+
+    msg += &format!("{:08x}", ir);
+    info!("{}", msg);
+
+    Ok(ir)
+}
+
+pub fn create_encode_priv_fn(
+    opcode: u8,
+    func12: u16,
+) -> Box<dyn FnOnce(&[String], &mut HashMap<String, u32>, u32, String) -> Result<u32, AssemblerError>>
+{
+    Box::new(
+        move |tokens: &[String], labels: &mut HashMap<String, u32>, pc: u32, msg: String| {
+            encode_priv(opcode, tokens, labels, pc, msg, func12)
+        },
+    )
 }
 
 pub fn parse_csr_with_reg(

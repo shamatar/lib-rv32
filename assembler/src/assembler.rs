@@ -11,7 +11,6 @@ use crate::{
     encode_rs1, encode_rs2, encode_s_imm, encode_u_imm, error::AssemblerError, parse::*, tokenize,
 };
 
-#[derive(PartialEq, Eq)]
 pub enum InstructionFormat {
     Itype,
     Rtype,
@@ -21,6 +20,16 @@ pub enum InstructionFormat {
     Btype,
     SpecialCase(
         fn(u8, &[String], &mut HashMap<String, u32>, u32, String) -> Result<u32, AssemblerError>,
+    ),
+    SpecialCaseParamtric(
+        Box<
+            dyn FnOnce(
+                &[String],
+                &mut HashMap<String, u32>,
+                u32,
+                String,
+            ) -> Result<u32, AssemblerError>,
+        >,
     ),
 }
 
@@ -68,6 +77,11 @@ pub fn assemble_ir(
     // special cases we do immediatelly
     if let InstructionFormat::SpecialCase(parsing_fn) = format {
         let ir = (parsing_fn)(opcode, &tokens, labels, pc, msg)?;
+        return Ok(Some(ir));
+    }
+
+    if let InstructionFormat::SpecialCaseParamtric(parsing_fn) = format {
+        let ir = (parsing_fn)(&tokens, labels, pc, msg)?;
         return Ok(Some(ir));
     }
 
@@ -168,7 +182,9 @@ pub fn assemble_ir(
             ir |= encode_s_imm!(imm);
         }
         InstructionFormat::Rtype => (),
-        InstructionFormat::SpecialCase(..) => unreachable!(),
+        InstructionFormat::SpecialCase(..) | InstructionFormat::SpecialCaseParamtric(..) => {
+            unreachable!()
+        }
     }
 
     msg += &format!("{:08x}", ir);

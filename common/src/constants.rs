@@ -49,6 +49,7 @@ pub const FUNC3_CSRRSI: u8 = 0b110;
 pub const FUNC3_CSRRCI: u8 = 0b111;
 pub const FUNC3_FENCE: u8 = 0b000;
 pub const FUNC3_FENCEI: u8 = 0b001;
+pub const FUNC3_PRIV: u8 = 0b000;
 
 pub const FUNC7_ADD: u8 = 0b0000000;
 pub const FUNC7_SUB: u8 = 0b0100000;
@@ -62,6 +63,11 @@ pub const FUNC7_OR: u8 = 0b0000000;
 pub const FUNC7_XOR: u8 = 0b0000000;
 pub const FUNC7_MUL: u8 = 0b0000001;
 pub const FUNC7_DIV: u8 = 0b0000001;
+
+pub const FUNC12_MRET: u16 = 0b001100000010;
+pub const FUNC12_WFI: u16 = 0b000100000101;
+pub const FUNC12_ECALL: u16 = 0b000000000000;
+pub const FUNC12_EBREAK: u16 = 0b000000000001;
 
 /// Array to match register numbers to their common names.
 pub static REG_NAMES: &[&str] = &[

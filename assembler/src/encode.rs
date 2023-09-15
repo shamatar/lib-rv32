@@ -119,3 +119,11 @@ pub fn encode_csr_index(ir: u32, csr: u32) -> Result<u32, AssemblerError> {
         Ok(ir | csr << 20)
     }
 }
+
+pub fn encode_func12(ir: u32, func12: u16) -> Result<u32, AssemblerError> {
+    if func12 >= (1u16 << 12) {
+        Err(AssemblerError::ImmediateTooLargeError)
+    } else {
+        Ok(ir | (func12 as u32) << 20)
+    }
+}
