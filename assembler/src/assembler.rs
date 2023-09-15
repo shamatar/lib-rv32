@@ -11,8 +11,6 @@ use crate::{
     encode_rs1, encode_rs2, encode_s_imm, encode_u_imm, error::AssemblerError, parse::*, tokenize,
 };
 
-use crate::encode::*;
-
 #[derive(PartialEq, Eq)]
 pub enum InstructionFormat {
     Itype,
@@ -21,8 +19,9 @@ pub enum InstructionFormat {
     Utype,
     Stype,
     Btype,
-    SystemQuasiIType,
-    SystemQuasiRType,
+    SpecialCase(
+        fn(u8, &[String], &mut HashMap<String, u32>, u32, String) -> Result<u32, AssemblerError>,
+    ),
 }
 
 /// Assemble a single instruction.
@@ -62,17 +61,20 @@ pub fn assemble_ir(
 
     msg += &format!("{:18} -> [{:02x}] ", ir_string, pc);
 
-    let op = &tokens[0][..];
+    let op = &tokens[0];
     let (opcode, format) = match_opcode_and_format(op)?;
     ir |= encode_opcode!(opcode);
 
+    // special cases we do immediatelly
+    if let InstructionFormat::SpecialCase(parsing_fn) = format {
+        let ir = (parsing_fn)(opcode, &tokens, labels, pc, msg)?;
+        return Ok(Some(ir));
+    }
+
+    // otherwise simpler cases
+
     // Use the destination register field.
-    if let InstructionFormat::Rtype
-    | InstructionFormat::Itype
-    | InstructionFormat::Utype
-    | InstructionFormat::SystemQuasiRType
-    | InstructionFormat::SystemQuasiIType = format
-    {
+    if let InstructionFormat::Rtype | InstructionFormat::Itype | InstructionFormat::Utype = format {
         let rd = match_register(&tokens[1])?;
         ir |= encode_rd!(rd);
     }
@@ -93,27 +95,6 @@ pub fn assemble_ir(
         )?;
         ir |= encode_rs1!(rs1);
         ir |= encode_func3!(match_func3(op));
-    }
-
-    // special case CSR format
-    if let InstructionFormat::SystemQuasiRType | InstructionFormat::SystemQuasiIType = format {
-        if format == InstructionFormat::SystemQuasiRType {
-            let rs1 = match_register(&tokens[3])?;
-            ir |= encode_rs1!(rs1);
-        } else if format == InstructionFormat::SystemQuasiIType {
-            let uimm = parse_uimm(&tokens[3], labels, pc)?;
-            ir = encode_csr_uimm(ir, uimm)?;
-        }
-
-        // now parse csr by name
-
-        let csr_index = parse_csr(&tokens[2]);
-        ir = encode_csr_index(ir, csr_index)?;
-
-        msg += &format!("{:08x}", ir);
-        info!("{}", msg);
-
-        return Ok(Some(ir));
     }
 
     // Use the second register operand field.
@@ -187,7 +168,7 @@ pub fn assemble_ir(
             ir |= encode_s_imm!(imm);
         }
         InstructionFormat::Rtype => (),
-        InstructionFormat::SystemQuasiIType | InstructionFormat::SystemQuasiRType => (),
+        InstructionFormat::SpecialCase(..) => unreachable!(),
     }
 
     msg += &format!("{:08x}", ir);

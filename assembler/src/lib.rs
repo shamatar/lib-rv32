@@ -10,6 +10,9 @@ pub mod error;
 /// Functions for parsing an instruction string.
 pub mod parse;
 
+/// Parsing function for special cased opcodes
+pub mod special_cases;
+
 /// Unit-tests.
 #[cfg(test)]
 mod test;
