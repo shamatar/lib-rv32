@@ -43,8 +43,12 @@ macro_rules! tokenize {
 /// Match an operation to the correct opcode.
 pub fn match_opcode_and_format(op: &str) -> Result<(u8, InstructionFormat), AssemblerError> {
     let opcode = match op {
-        "add" | "sub" | "sll" | "srl" | "slt" | "sltu" | "xor" | "sra" | "or" | "and" => OPCODE_ARITHMETIC,
-        "addi" | "slli" | "srli" | "slti" | "sltiu" | "xori" | "srai" | "ori" | "andi" => OPCODE_ARITHMETIC_IMM,
+        "add" | "sub" | "sll" | "srl" | "slt" | "sltu" | "xor" | "sra" | "or" | "and" => {
+            OPCODE_ARITHMETIC
+        }
+        "addi" | "slli" | "srli" | "slti" | "sltiu" | "xori" | "srai" | "ori" | "andi" => {
+            OPCODE_ARITHMETIC_IMM
+        }
         "lui" => OPCODE_LUI,
         "auipc" => OPCODE_AUIPC,
         "jal" => OPCODE_JAL,
@@ -55,10 +59,10 @@ pub fn match_opcode_and_format(op: &str) -> Result<(u8, InstructionFormat), Asse
         "mul" | "mulh" | "mulhsu" | "mulhu" | "div" | "divu" | "rem" | "remu" => OPCODE_ARITHMETIC,
         "csrrw" | "csrrs" | "csrrc" => {
             return Ok((OPCODE_SYSTEM, InstructionFormat::SystemQuasiRType));
-        },
+        }
         "csrrwi" | "csrrsi" | "csrrci" => {
             return Ok((OPCODE_SYSTEM, InstructionFormat::SystemQuasiIType));
-        },
+        }
         _ => return Err(AssemblerError::InvalidOperationError),
     };
 
@@ -73,7 +77,6 @@ pub fn match_opcode_and_format(op: &str) -> Result<(u8, InstructionFormat), Asse
         // OPCODE_FENCE => FENCE.I
         _ => unreachable!("encountered 0b{:b}", opcode),
     };
-
 
     Ok((opcode, format))
 }
@@ -152,7 +155,6 @@ pub fn match_func3(t: &str) -> u8 {
         _ => unreachable!("encountered {}", t),
     }
 }
-
 
 /// Match an operation to the correct func7.
 pub fn match_func7(t: &str) -> u8 {

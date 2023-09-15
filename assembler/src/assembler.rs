@@ -8,8 +8,7 @@ use lib_rv32_common::constants::*;
 
 use crate::{
     encode_b_imm, encode_func3, encode_func7, encode_i_imm, encode_j_imm, encode_opcode, encode_rd,
-    encode_rs1, encode_rs2, encode_s_imm, encode_u_imm, error::AssemblerError,
-    parse::*, tokenize,
+    encode_rs1, encode_rs2, encode_s_imm, encode_u_imm, error::AssemblerError, parse::*, tokenize,
 };
 
 use crate::encode::*;
@@ -68,7 +67,12 @@ pub fn assemble_ir(
     ir |= encode_opcode!(opcode);
 
     // Use the destination register field.
-    if let InstructionFormat::Rtype | InstructionFormat::Itype | InstructionFormat::Utype | InstructionFormat::SystemQuasiRType | InstructionFormat::SystemQuasiIType = format {
+    if let InstructionFormat::Rtype
+    | InstructionFormat::Itype
+    | InstructionFormat::Utype
+    | InstructionFormat::SystemQuasiRType
+    | InstructionFormat::SystemQuasiIType = format
+    {
         let rd = match_register(&tokens[1])?;
         ir |= encode_rd!(rd);
     }
@@ -94,13 +98,11 @@ pub fn assemble_ir(
     // special case CSR format
     if let InstructionFormat::SystemQuasiRType | InstructionFormat::SystemQuasiIType = format {
         if format == InstructionFormat::SystemQuasiRType {
-            let rs1 = match_register(
-                &tokens[3],
-            )?;
+            let rs1 = match_register(&tokens[3])?;
             ir |= encode_rs1!(rs1);
         } else if format == InstructionFormat::SystemQuasiIType {
             let uimm = parse_imm(&tokens[3], labels, pc)?;
-            ir = encode_csr_uimm(ir, uimm)?; 
+            ir = encode_csr_uimm(ir, uimm)?;
         }
 
         // now parse csr by name
@@ -110,7 +112,7 @@ pub fn assemble_ir(
 
         msg += &format!("{:08x}", ir);
         info!("{}", msg);
-    
+
         return Ok(Some(ir));
     }
 
