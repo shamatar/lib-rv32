@@ -281,6 +281,7 @@ pub fn match_func3(t: &str) -> u8 {
         "csrrsi" => FUNC3_CSRRSI,
         "csrrci" => FUNC3_CSRRCI,
         "fence.i" => FUNC3_FENCEI,
+        "jalr" => FUNC3_JALR,
         _ => unreachable!("encountered {}", t),
     }
 }
