@@ -57,7 +57,7 @@ pub fn match_opcode_and_format(op: &str) -> Result<(u8, InstructionFormat), Asse
         "auipc" => OPCODE_AUIPC,
         "jal" => OPCODE_JAL,
         "jalr" => OPCODE_JALR,
-        "beq" | "bne" | "blt" | "bge" | "bgeu" => OPCODE_BRANCH,
+        "beq" | "bne" | "blt" | "bge" | "bgeu" | "bltu" => OPCODE_BRANCH,
         "lb" | "lbu" | "lh" | "lhu" | "lw" => OPCODE_LOAD,
         "sb" | "sh" | "sw" => OPCODE_STORE,
         "mul" | "mulh" | "mulhsu" | "mulhu" | "div" | "divu" | "rem" | "remu" => OPCODE_ARITHMETIC,
