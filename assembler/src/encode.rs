@@ -89,7 +89,7 @@ macro_rules! encode_u_imm {
 #[macro_export]
 macro_rules! encode_s_imm {
     ($n:expr) => {
-        (((($n as u32) & 0b111111100000) << 25) | ((($n as u32) & 0b000000011111) << 7))
+        (((($n as u32) & 0b111111100000) << 20) | ((($n as u32) & 0b000000011111) << 7))
     };
 }
 
