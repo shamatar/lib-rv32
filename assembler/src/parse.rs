@@ -291,7 +291,7 @@ pub fn match_func7(t: &str) -> u8 {
     match t {
         "add" => FUNC7_ADD,
         "sub" => FUNC7_SUB,
-        "sra" => FUNC7_SRA,
+        "sra" | "srai" => FUNC7_SRA,
         "srl" => FUNC7_SRL,
         "sll" => FUNC7_SLL,
         "slt" => FUNC7_SLT,

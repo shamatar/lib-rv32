@@ -118,7 +118,7 @@ pub fn assemble_ir(
     }
 
     // Use the func7 field.
-    if let InstructionFormat::Rtype = format {
+    if let InstructionFormat::Rtype | InstructionFormat::Itype = format {
         ir |= encode_func7!(match_func7(op));
     }
 
