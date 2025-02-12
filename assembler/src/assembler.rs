@@ -118,7 +118,7 @@ pub fn assemble_ir(
     }
 
     // Use the func7 field.
-    if matches!(format, InstructionFormat::Rtype) || matches!(format, InstructionFormat::Itype if matches!(match_func3(op), FUNC3_SLL | FUNC3_SR)) {
+    if matches!(format, InstructionFormat::Rtype) || matches!(format, InstructionFormat::Itype if opcode == OPCODE_ARITHMETIC_IMM && matches!(match_func3(op), FUNC3_SLL | FUNC3_SR)) {
         ir |= encode_func7!(match_func7(op));
     }
 
