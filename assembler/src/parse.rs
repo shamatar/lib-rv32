@@ -324,6 +324,7 @@ pub fn parse_csr(t: &str) -> u32 {
         "mtval" => CSR_MTVAL,
         "mip" => CSR_MIP,
         "vendorid" => CSR_VENDORID,
-        _ => unreachable!("encountered {}", t),
+        x => x.parse().expect("csr must be a base10 number")
+        // _ => unreachable!("encountered {}", t),
     }
 }
