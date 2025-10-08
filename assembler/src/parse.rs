@@ -324,6 +324,8 @@ pub fn parse_csr(t: &str) -> u32 {
         "mtval" => CSR_MTVAL,
         "mip" => CSR_MIP,
         "vendorid" => CSR_VENDORID,
-        _ => unreachable!("encountered {}", t),
+
+        // default case
+        s => s.parse().or(u32::from_str_radix(&s[2..], 16)).expect("must be base 10, or base 16 with prefix")
     }
 }
